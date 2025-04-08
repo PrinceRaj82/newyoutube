@@ -10,10 +10,13 @@ const Hero = () => {
           <Video className="h-6 w-6" />
         </div>
         <h1 className="mb-4 text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-          Fastest YouTube Video Downloader
+          Real YouTube Video Downloader
         </h1>
         <p className="mx-auto max-w-[700px] text-lg text-white/90 md:text-xl">
-          Download YouTube videos in MP4, WEBM, or MP3 format with the highest quality for free.
+          Download any YouTube video in MP4, WEBM, or MP3 format with the highest quality for free.
+        </p>
+        <p className="mx-auto max-w-[700px] text-sm text-white/70 mt-4">
+          Simply paste your YouTube URL above and download straight to your device.
         </p>
       </div>
     </div>

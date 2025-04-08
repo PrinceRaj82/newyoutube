@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from "sonner";
 
 export interface DownloadFormat {
+  id: string;  // Added format_id for API requests
   quality: string;
   format: string;
   fileSize: string;
@@ -48,7 +49,6 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({
   }
 
   const handleDownload = (format: DownloadFormat) => {
-    // In a real application, this would trigger the actual download
     toast.success(`Starting download: ${format.quality} ${format.format}`);
     onDownload(format);
   };
@@ -98,35 +98,37 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({
         </div>
       </div>
 
-      <div>
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-          <FileVideo className="mr-2 h-5 w-5 text-brand-blue" />
-          Audio Formats
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {audioFormats.map((format, index) => (
-            <Card key={index} className="bg-white hover:bg-gray-50 transition-colors">
-              <CardContent className="p-4 flex justify-between items-center">
-                <div>
-                  <div className="font-medium">{format.quality}</div>
-                  <div className="text-sm text-gray-500 flex items-center mt-1">
-                    <FileVideo className="h-4 w-4 mr-1" />
-                    {format.format} • {format.fileSize}
+      {audioFormats.length > 0 && (
+        <div>
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+            <FileVideo className="mr-2 h-5 w-5 text-brand-blue" />
+            Audio Formats
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {audioFormats.map((format, index) => (
+              <Card key={index} className="bg-white hover:bg-gray-50 transition-colors">
+                <CardContent className="p-4 flex justify-between items-center">
+                  <div>
+                    <div className="font-medium">{format.quality}</div>
+                    <div className="text-sm text-gray-500 flex items-center mt-1">
+                      <FileVideo className="h-4 w-4 mr-1" />
+                      {format.format} • {format.fileSize}
+                    </div>
                   </div>
-                </div>
-                <Button 
-                  onClick={() => handleDownload(format)}
-                  className="bg-brand-green hover:bg-opacity-90"
-                  disabled={downloadProgress !== null}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                  <Button 
+                    onClick={() => handleDownload(format)}
+                    className="bg-brand-green hover:bg-opacity-90"
+                    disabled={downloadProgress !== null}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

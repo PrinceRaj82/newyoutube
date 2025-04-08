@@ -10,71 +10,89 @@ import DownloadOptions, { DownloadFormat } from '@/components/DownloadOptions';
 import Features from '@/components/Features';
 import FAQ from '@/components/FAQ';
 
-// Mock data for demonstration
-const mockVideoDetails = {
-  title: "Amazing Landscapes in 4K UHD - Beautiful Nature Documentary",
-  thumbnailUrl: "https://i.ytimg.com/vi/0BIaDVnYp2A/maxresdefault.jpg",
-  duration: "10:15",
-  author: "Nature Explorer"
-};
-
-const mockDownloadFormats = [
-  { quality: "1080p", format: "MP4", fileSize: "245.3 MB", type: 'video' as const },
-  { quality: "720p", format: "MP4", fileSize: "132.5 MB", type: 'video' as const },
-  { quality: "480p", format: "MP4", fileSize: "78.2 MB", type: 'video' as const },
-  { quality: "360p", format: "WEBM", fileSize: "45.7 MB", type: 'video' as const },
-  { quality: "High", format: "MP3", fileSize: "12.8 MB", type: 'audio' as const },
-  { quality: "Medium", format: "MP3", fileSize: "8.5 MB", type: 'audio' as const }
-];
+// API configuration
+const API_BASE_URL = 'http://localhost:5000/api';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [videoDetails, setVideoDetails] = useState<VideoDetails | null>(null);
   const [downloadFormats, setDownloadFormats] = useState<DownloadFormat[] | null>(null);
   const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+  const [currentYoutubeUrl, setCurrentYoutubeUrl] = useState<string>('');
 
   const handleSubmit = async (url: string) => {
     setIsLoading(true);
     setVideoDetails(null);
     setDownloadFormats(null);
+    setCurrentYoutubeUrl(url);
     
-    // Simulate API fetch with timeout
     try {
-      // This would be a real API call in a production app
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Fetching video info for:', url);
+      const response = await fetch(`${API_BASE_URL}/video-info?url=${encodeURIComponent(url)}`);
       
-      // Set mock data
-      setVideoDetails(mockVideoDetails);
-      setDownloadFormats(mockDownloadFormats);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch video info');
+      }
+      
+      const data = await response.json();
+      console.log('Received video data:', data);
+      
+      setVideoDetails(data.videoDetails);
+      setDownloadFormats(data.downloadFormats);
     } catch (error) {
       console.error("Error fetching video details:", error);
-      toast.error("Failed to fetch video details. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Failed to fetch video details. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDownload = (format: DownloadFormat) => {
-    // Simulate download progress
-    setDownloadProgress(0);
+  const handleDownload = async (format: DownloadFormat) => {
+    if (!currentYoutubeUrl) {
+      toast.error("YouTube URL not found. Please try again.");
+      return;
+    }
     
-    const interval = setInterval(() => {
-      setDownloadProgress(prev => {
-        if (prev === null) return 0;
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setDownloadProgress(null);
-            toast.success("Download completed successfully!");
-          }, 500);
-          return 100;
-        }
-        return prev + 5;
-      });
-    }, 300);
-    
-    // In a real app, this would trigger the actual download
-    // For demo purposes, we just show a progress bar
+    try {
+      // Start download progress
+      setDownloadProgress(0);
+      
+      // Construct download URL
+      const downloadUrl = `${API_BASE_URL}/download?url=${encodeURIComponent(currentYoutubeUrl)}&format_id=${format.id}`;
+      
+      // Create a download link and simulate progress
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = '';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      // Simulate progress because we can't track actual download progress from another domain
+      const interval = setInterval(() => {
+        setDownloadProgress(prev => {
+          if (prev === null) return 0;
+          if (prev >= 95) {
+            clearInterval(interval);
+            setTimeout(() => {
+              setDownloadProgress(100);
+              setTimeout(() => {
+                setDownloadProgress(null);
+                toast.success("Download started successfully!");
+              }, 1000);
+            }, 500);
+            return 95;
+          }
+          return prev + 5;
+        });
+      }, 300);
+      
+    } catch (error) {
+      console.error("Error downloading video:", error);
+      toast.error("Failed to download video. Please try again.");
+      setDownloadProgress(null);
+    }
   };
 
   return (
