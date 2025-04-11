@@ -125,9 +125,23 @@ app.get('/api/download', (req, res) => {
         res.setHeader('Content-Type', 'application/octet-stream');
         
         // Stream the download directly to the response
+        // const ytDlp = spawn('yt-dlp', [
+        //   '-f', format_id,
+        //   '-o', '-', // Output to stdout
+        //   url
+        // ]);
+        
+        // const ytDlp = spawn('yt-dlp', [
+        //   '-f', `${format_id}+bestaudio`,
+        //   '--merge-output-format', 'mp4',
+        //   '-o', '-', // Output to stdout
+        //   url
+        // ]);
+        
         const ytDlp = spawn('yt-dlp', [
-          '-f', format_id,
-          '-o', '-', // Output to stdout
+          '-f', `${format_id}+bestaudio[ext=m4a]`,
+          '--merge-output-format', 'mp4',
+          '-o', '-', // Stream output
           url
         ]);
         
