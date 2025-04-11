@@ -9,15 +9,15 @@ RUN apt-get update && \
 # Create app directory
 WORKDIR /app
 
-# Copy package files and install dependencies
-COPY package*.json ./
+# Copy backend package files and install dependencies
+COPY server/package*.json ./
 RUN npm install
 
-# Copy rest of the app
-COPY . .
+# Copy the rest of the backend source code
+COPY server .
 
-# Expose port (adjust if your app uses a different one)
+# Expose the backend port (update if your app uses a different one)
 EXPOSE 3000
 
-# Start the app
+# Run the server
 CMD ["node", "index.js"]
