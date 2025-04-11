@@ -1,25 +1,23 @@
-# Use Node.js base image
-FROM node:18
+# Use a lightweight official Node.js image
+FROM node:18-slim
 
-# Install yt-dlp and ffmpeg for video processing
+# Install yt-dlp, ffmpeg, Python, and pip
 RUN apt-get update && \
-    apt-get install -y python3-pip ffmpeg && \
-    pip install yt-dlp
+    apt-get install -y python3 python3-pip ffmpeg && \
+    python3 -m pip install --break-system-packages yt-dlp
 
-# Set working directory
+# Create app directory
 WORKDIR /app
 
-# Copy dependency files first
+# Copy package files and install dependencies
 COPY package*.json ./
-
-# Install backend dependencies
 RUN npm install
 
-# Copy all project files
+# Copy rest of the app
 COPY . .
 
-# Expose the port (Render uses process.env.PORT)
+# Expose port (adjust if your app uses a different one)
 EXPOSE 3000
 
-# Start the server
-CMD ["node", "server/index.js"]
+# Start the app
+CMD ["node", "index.js"]
